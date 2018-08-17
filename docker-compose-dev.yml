@@ -1,0 +1,31 @@
+version: '3.3'
+
+services:
+   db:
+     restart: always
+     image: mysql:5.7
+     volumes:
+     - ./db_data:/var/lib/mysql
+     ports:
+      - 3306:3306
+     environment:
+       MYSQL_ROOT_PASSWORD: quest
+       MYSQL_DATABASE: quest
+       MYSQL_USER: quest
+       MYSQL_PASSWORD: quest
+
+   phpmyadmin:
+     restart: always
+     image: phpmyadmin/phpmyadmin
+     container_name: phpmyadmin
+     links:
+       - db:db
+     ports:
+      - 8001:80
+     environment:
+       MYSQL_USER: quest
+       MYSQL_PASSWORD: quest
+       MYSQL_ROOT_PASSWORD: quest
+
+volumes:
+    db_data:
