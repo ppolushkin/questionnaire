@@ -26,8 +26,23 @@ func (a *App) Initialize(user, password, host, dbname string) {
 		log.Fatal(err)
 	}
 
+	a.initializeDatabase()
 	a.Router = mux.NewRouter()
 	a.initializeRoutes()
+}
+
+func (a *App) initializeDatabase() {
+	const tableCreationQuery = `
+    CREATE TABLE IF NOT EXISTS users
+		(
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			name VARCHAR(50) NOT NULL,
+			age INT NOT NULL
+		)`
+
+	if _, err := a.DB.Exec(tableCreationQuery); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (a *App) initializeRoutes() {
@@ -37,7 +52,6 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/users/{id:[0-9]+}", a.updateUser).Methods("PUT")
 	a.Router.HandleFunc("/users/{id:[0-9]+}", a.deleteUser).Methods("DELETE")
 }
-
 
 func (a *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, a.Router))
@@ -64,7 +78,6 @@ func (a *App) getUser(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJSON(w, http.StatusOK, u)
 }
-
 
 func (a *App) getUsers(w http.ResponseWriter, r *http.Request) {
 	count, _ := strconv.Atoi(r.FormValue("count"))

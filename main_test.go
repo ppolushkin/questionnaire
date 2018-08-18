@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"bytes"
 	"encoding/json"
-	"log"
+	_ "log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -20,8 +20,6 @@ func TestMain(m *testing.M) {
 	a = App{}
 	a.Initialize("quest_test", "quest_test", "localhost", "quest_test")
 
-	ensureTableExists()
-
 	code := m.Run()
 
 	clearTable()
@@ -29,24 +27,10 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func ensureTableExists() {
-	if _, err := a.DB.Exec(tableCreationQuery); err != nil {
-		log.Fatal(err)
-	}
-}
-
 func clearTable() {
 	a.DB.Exec("DELETE FROM users")
 	a.DB.Exec("ALTER TABLE users AUTO_INCREMENT = 1")
 }
-
-const tableCreationQuery = `
-CREATE TABLE IF NOT EXISTS users
-(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    age INT NOT NULL
-)`
 
 func TestEmptyTable(t *testing.T) {
 	clearTable()
@@ -77,7 +61,7 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 func TestGetNonExistentUser(t *testing.T) {
 	clearTable()
 
-	req, _ := http.NewRequest("GET", "/user/45", nil)
+	req, _ := http.NewRequest("GET", "/users/45", nil)
 	response := executeRequest(req)
 
 	checkResponseCode(t, http.StatusNotFound, response.Code)
@@ -94,7 +78,7 @@ func TestCreateUser(t *testing.T) {
 
 	payload := []byte(`{"name":"test user","age":30}`)
 
-	req, _ := http.NewRequest("POST", "/user", bytes.NewBuffer(payload))
+	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer(payload))
 	response := executeRequest(req)
 
 	checkResponseCode(t, http.StatusCreated, response.Code)
@@ -132,7 +116,7 @@ func TestGetUser(t *testing.T) {
 	clearTable()
 	addUsers(1)
 
-	req, _ := http.NewRequest("GET", "/user/1", nil)
+	req, _ := http.NewRequest("GET", "/users/1", nil)
 	response := executeRequest(req)
 
 	checkResponseCode(t, http.StatusOK, response.Code)
@@ -142,14 +126,14 @@ func TestUpdateUser(t *testing.T) {
 	clearTable()
 	addUsers(1)
 
-	req, _ := http.NewRequest("GET", "/user/1", nil)
+	req, _ := http.NewRequest("GET", "/users/1", nil)
 	response := executeRequest(req)
 	var originalUser map[string]interface{}
 	json.Unmarshal(response.Body.Bytes(), &originalUser)
 
 	payload := []byte(`{"name":"test user - updated name","age":21}`)
 
-	req, _ = http.NewRequest("PUT", "/user/1", bytes.NewBuffer(payload))
+	req, _ = http.NewRequest("PUT", "/users/1", bytes.NewBuffer(payload))
 	response = executeRequest(req)
 
 	checkResponseCode(t, http.StatusOK, response.Code)
@@ -174,16 +158,16 @@ func TestDeleteUser(t *testing.T) {
 	clearTable()
 	addUsers(1)
 
-	req, _ := http.NewRequest("GET", "/user/1", nil)
+	req, _ := http.NewRequest("GET", "/users/1", nil)
 	response := executeRequest(req)
 	checkResponseCode(t, http.StatusOK, response.Code)
 
-	req, _ = http.NewRequest("DELETE", "/user/1", nil)
+	req, _ = http.NewRequest("DELETE", "/users/1", nil)
 	response = executeRequest(req)
 
 	checkResponseCode(t, http.StatusOK, response.Code)
 
-	req, _ = http.NewRequest("GET", "/user/1", nil)
+	req, _ = http.NewRequest("GET", "/users/1", nil)
 	response = executeRequest(req)
 	checkResponseCode(t, http.StatusNotFound, response.Code)
 }

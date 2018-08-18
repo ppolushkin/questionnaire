@@ -19,7 +19,6 @@ go clean && sudo docker-compose -f docker-compose-dev.yml up
 then right button of folder and Debug
 
 # Run integration tests
-
 sudo docker-compose -f docker-compose-test.yml up
 
 then right click on main_test.go
@@ -35,9 +34,11 @@ http://localhost:8001
 
 - implement logic
 
-- logging
-- monitoring
+- logging (kubernates?)
+- monitoring (kubernates?)
 - swagger
+- flyway
+- angularjs on nodejs or on go
 - deploy to cloud
 
 
