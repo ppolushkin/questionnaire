@@ -32,10 +32,10 @@ func (a *App) Initialize(user, password, host, dbname string) {
 
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/users", a.getUsers).Methods("GET")
-	a.Router.HandleFunc("/user", a.createUser).Methods("POST")
-	a.Router.HandleFunc("/user/{id:[0-9]+}", a.getUser).Methods("GET")
-	a.Router.HandleFunc("/user/{id:[0-9]+}", a.updateUser).Methods("PUT")
-	a.Router.HandleFunc("/user/{id:[0-9]+}", a.deleteUser).Methods("DELETE")
+	a.Router.HandleFunc("/users", a.createUser).Methods("POST")
+	a.Router.HandleFunc("/users/{id:[0-9]+}", a.getUser).Methods("GET")
+	a.Router.HandleFunc("/users/{id:[0-9]+}", a.updateUser).Methods("PUT")
+	a.Router.HandleFunc("/users/{id:[0-9]+}", a.deleteUser).Methods("DELETE")
 }
 
 

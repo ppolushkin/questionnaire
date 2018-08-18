@@ -35,6 +35,12 @@ services:
        - 8080:8080
      depends_on:
        - db
+     environment:
+       appPort: :8080
+       dbHost: db
+       dbName: quest
+       dbUser: quest
+       dbPswd: quest
      command: ["/run/questionnaire"]
 
 volumes:

@@ -10,14 +10,10 @@ https://medium.com/travis-on-docker/how-to-dockerize-your-go-golang-app-542af15c
 CGO_ENABLED=0 go build -a -installsuffix cgo
 
 # PROD Run all
-in main.go host should be db
-
 go clean && CGO_ENABLED=0 go build -a -installsuffix cgo && sudo docker-compose -f docker-compose-prod.yml up  
 
 
-# DEV Run db
-in main.go host should be localhost 
-
+# DEV Run db 
 go clean && sudo docker-compose -f docker-compose-dev.yml up
 
 then right button of folder and Debug
@@ -33,6 +29,35 @@ http://localhost:8080
 
 ### PHP my admin
 http://localhost:8001
+
+
+# TODO:
+
+- implement logic
+
+- logging
+- monitoring
+- swagger
+- deploy to cloud
+
+
+- aws? swiss com? DO? asure?
+- kubernates
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
