@@ -3,20 +3,22 @@ package main
 import (
 	"database/sql"
 
-	"github.com/gorilla/mux"
-	_ "github.com/go-sql-driver/mysql"
+	"encoding/json"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
-	"encoding/json"
 )
 
+//App is program context
 type App struct {
 	Router *mux.Router
 	DB     *sql.DB
 }
 
+//Initialize connects to database and initialize routes
 func (a *App) Initialize(user, password, host, dbname string) error {
 	if err := a.openDatabase(user, password, host, dbname); err != nil {
 		return err
@@ -27,6 +29,11 @@ func (a *App) Initialize(user, password, host, dbname string) error {
 	a.Router = mux.NewRouter()
 	a.initializeRoutes()
 	return nil
+}
+
+//Run runs http listening. Initialize should be run before
+func (a *App) Run(addr string) {
+	log.Fatal(http.ListenAndServe(addr, a.Router))
 }
 
 func (a *App) openDatabase(user string, password string, host string, dbname string) (err error) {
@@ -53,10 +60,6 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/users/{id:[0-9]+}", a.getUser).Methods("GET")
 	a.Router.HandleFunc("/users/{id:[0-9]+}", a.updateUser).Methods("PUT")
 	a.Router.HandleFunc("/users/{id:[0-9]+}", a.deleteUser).Methods("DELETE")
-}
-
-func (a *App) Run(addr string) {
-	log.Fatal(http.ListenAndServe(addr, a.Router))
 }
 
 func (a *App) getUser(w http.ResponseWriter, r *http.Request) {
