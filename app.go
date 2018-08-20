@@ -17,21 +17,25 @@ type App struct {
 	DB     *sql.DB
 }
 
-func (a *App) Initialize(user, password, host, dbname string) {
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s", user, password, host, dbname)
-
-	var err error
-	a.DB, err = sql.Open("mysql", connectionString)
-	if err != nil {
-		log.Fatal(err)
+func (a *App) Initialize(user, password, host, dbname string) error {
+	if err := a.openDatabase(user, password, host, dbname); err != nil {
+		return err
 	}
-
-	a.initializeDatabase()
+	if err := a.initializeDatabase(); err != nil {
+		return err
+	}
 	a.Router = mux.NewRouter()
 	a.initializeRoutes()
+	return nil
 }
 
-func (a *App) initializeDatabase() {
+func (a *App) openDatabase(user string, password string, host string, dbname string) (err error) {
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s", user, password, host, dbname)
+	a.DB, err = sql.Open("mysql", connectionString)
+	return err
+}
+
+func (a *App) initializeDatabase() (err error) {
 	const tableCreationQuery = `
     CREATE TABLE IF NOT EXISTS users
 		(
@@ -39,10 +43,8 @@ func (a *App) initializeDatabase() {
 			name VARCHAR(50) NOT NULL,
 			age INT NOT NULL
 		)`
-
-	if _, err := a.DB.Exec(tableCreationQuery); err != nil {
-		log.Fatal(err)
-	}
+	_, err = a.DB.Exec(tableCreationQuery)
+	return err
 }
 
 func (a *App) initializeRoutes() {
