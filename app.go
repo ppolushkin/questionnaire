@@ -1,3 +1,16 @@
+// Package classification Questionnaire REST API.
+//
+//     Schemes: http, https
+//     Host: localhost:8080
+//     BasePath: /api
+//     Version: 1.0.0
+//
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+// swagger:meta
 package main
 
 import (
@@ -7,9 +20,14 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/handlers"
 	"log"
 	"net/http"
 	"strconv"
+)
+
+const (
+	STATIC_DIR = "/static/"
 )
 
 //App is program context
@@ -33,7 +51,12 @@ func (a *App) Initialize(user, password, host, dbname string) error {
 
 //Run runs http listening. Initialize should be run before
 func (a *App) Run(addr string) {
-	log.Fatal(http.ListenAndServe(addr, a.Router))
+	allowedHeaders := handlers.AllowedHeaders([]string{"Content-Type", "api_key", "Authorization"})
+	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+	allowedMethods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
+	//Setup CORS support for Swagger UI as it works on another port
+	//https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/cors.md
+	log.Fatal(http.ListenAndServe(addr, handlers.CORS(allowedHeaders, allowedOrigins, allowedMethods)(a.Router)))
 }
 
 func (a *App) openDatabase(user string, password string, host string, dbname string) (err error) {
@@ -55,11 +78,19 @@ func (a *App) initializeDatabase() (err error) {
 }
 
 func (a *App) initializeRoutes() {
-	a.Router.HandleFunc("/users", a.getUsers).Methods("GET")
-	a.Router.HandleFunc("/users", a.createUser).Methods("POST")
-	a.Router.HandleFunc("/users/{id:[0-9]+}", a.getUser).Methods("GET")
-	a.Router.HandleFunc("/users/{id:[0-9]+}", a.updateUser).Methods("PUT")
-	a.Router.HandleFunc("/users/{id:[0-9]+}", a.deleteUser).Methods("DELETE")
+
+	a.Router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "." + STATIC_DIR + "index.html")
+	})
+
+	a.Router.PathPrefix(STATIC_DIR).
+		Handler(http.StripPrefix(STATIC_DIR, http.FileServer(http.Dir("."+STATIC_DIR))))
+
+	a.Router.HandleFunc("/api/users", a.getUsers).Methods("GET")
+	a.Router.HandleFunc("/api/users", a.createUser).Methods("POST")
+	a.Router.HandleFunc("/api/users/{id:[0-9]+}", a.getUser).Methods("GET")
+	a.Router.HandleFunc("/api/users/{id:[0-9]+}", a.updateUser).Methods("PUT")
+	a.Router.HandleFunc("/api/users/{id:[0-9]+}", a.deleteUser).Methods("DELETE")
 }
 
 func (a *App) getUser(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +105,7 @@ func (a *App) getUser(w http.ResponseWriter, r *http.Request) {
 	if err := u.getUser(a.DB); err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			respondWithError(w, http.StatusNotFound, "User not found")
+			respondWithError(w, http.StatusNotFound, "user not found")
 		default:
 			respondWithError(w, http.StatusInternalServerError, err.Error())
 		}
@@ -84,6 +115,33 @@ func (a *App) getUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, u)
 }
 
+// swagger:operation GET /users getUsers
+//
+// Returns all users in the system
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - name: start
+//   in: query
+//   description: start from user #
+//   required: false
+//   type: integer
+//   format: int32
+// - name: count
+//   in: query
+//   description: number of users to return
+//   required: false
+//   type: integer
+//   format: int32
+// responses:
+//   '200':
+//     description: users
+//     schema:
+//       type: array
+//       items:
+//         "$ref": "#/definitions/user"
 func (a *App) getUsers(w http.ResponseWriter, r *http.Request) {
 	count, _ := strconv.Atoi(r.FormValue("count"))
 	start, _ := strconv.Atoi(r.FormValue("start"))
@@ -150,7 +208,7 @@ func (a *App) deleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid User ID")
+		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 

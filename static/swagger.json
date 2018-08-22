@@ -1,0 +1,91 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "Questionnaire REST API.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:8080",
+  "basePath": "/api",
+  "paths": {
+    "/users": {
+      "get": {
+        "description": "Returns all users in the system",
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "getUsers",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "start from user",
+            "name": "start",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "number of users to return",
+            "name": "count",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "users",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "user": {
+      "description": "A user is the security principal for this application.\nIt's also used as one of main axes for reporting.\n\nA user can have friends with whom they can share what they like.",
+      "type": "object",
+      "title": "user represents the user for this application",
+      "required": [
+        "id",
+        "name",
+        "age"
+      ],
+      "properties": {
+        "age": {
+          "description": "the ages for this user",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Age"
+        },
+        "id": {
+          "description": "the id for this user",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "x-go-name": "ID"
+        },
+        "name": {
+          "description": "the name for this user",
+          "type": "string",
+          "minLength": 3,
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/ppolushkin/questionnaire"
+    }
+  }
+}

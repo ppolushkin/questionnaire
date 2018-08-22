@@ -16,7 +16,7 @@ services:
 
    phpmyadmin:
      restart: always
-     image: phpmyadmin/phpmyadmin
+     image: phpmyadmin/phpmyadmin:4.6
      container_name: phpmyadmin
      links:
        - db:db
@@ -26,6 +26,15 @@ services:
        MYSQL_USER: quest
        MYSQL_PASSWORD: quest
        MYSQL_ROOT_PASSWORD: quest
+
+   swagger:
+     restart: always
+     image: swaggerapi/swagger-ui:3.18.1
+     container_name: swagger-ui
+     environment:
+        API_URL: http://localhost:8080/static/swagger.json
+     ports:
+      - 8002:8080
 
 volumes:
     db_data:

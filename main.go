@@ -21,7 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Initialized successfully!\nStarted on localhost%d", appPort)
+	fmt.Printf("Started on localhost%s", appPort)
 	a.Run(appPort)
 }
 

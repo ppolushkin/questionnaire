@@ -6,10 +6,27 @@ import (
 	"fmt"
 )
 
+// user represents the user for this application
+//
+// A user is the security principal for this application.
+// It's also used as one of main axes for reporting.
+//
+// A user can have friends with whom they can share what they like.
+//
+// swagger:model
 type user struct {
-	ID   int    `json:"id"`
+	// the id for this user
+	//
+	// required: true
+	// min: 1
+	ID int `json:"id"`
+	// the name for this user
+	// required: true
+	// min length: 3
 	Name string `json:"name"`
-	Age  int    `json:"age"`
+	// the ages for this user
+	// required: true
+	Age int `json:"age"`
 }
 
 func (u *user) getUser(db *sql.DB) error {

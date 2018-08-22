@@ -68,8 +68,8 @@ func TestGetNonExistentUser(t *testing.T) {
 
 	var m map[string]string
 	json.Unmarshal(response.Body.Bytes(), &m)
-	if m["error"] != "User not found" {
-		t.Errorf("Expected the 'error' key of the response to be set to 'User not found'. Got '%s'", m["error"])
+	if m["error"] != "user not found" {
+		t.Errorf("Expected the 'error' key of the response to be set to 'user not found'. Got '%s'", m["error"])
 	}
 }
 
@@ -107,7 +107,7 @@ func addUsers(count int) {
 	}
 
 	for i := 0; i < count; i++ {
-		statement := fmt.Sprintf("INSERT INTO users(name, age) VALUES('%s', %d)", ("User " + strconv.Itoa(i+1)), ((i + 1) * 10))
+		statement := fmt.Sprintf("INSERT INTO users(name, age) VALUES('%s', %d)", ("user " + strconv.Itoa(i+1)), ((i + 1) * 10))
 		a.DB.Exec(statement)
 	}
 }
